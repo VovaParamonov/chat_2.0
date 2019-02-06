@@ -4,10 +4,18 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack",
     "liveReload": "webpack-dev-server --open",
-    "start": "node server/server.js"
+    "start": "node server/server.js",
+    "test": "IP=0.0.0.0 PORT=3030 mocha --timeout 5000 tests/*_test.js"
+  },
+  "engine": {
+    "node": "*",
+    "npm": "*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/VovaParamonov/chat_2.0"
   },
   "author": "Vova",
   "license": "ISC",
@@ -17,7 +25,7 @@
     "babel-loader": "^8.0.4",
     "clean-webpack-plugin": "^0.1.19",
     "css-loader": "^1.0.1",
-    "express": "^4.15.2",
+    "express": "^4.16.4",
     "file-loader": "^3.0.1",
     "html-webpack-plugin": "^3.2.0",
     "jquery": "^3.3.1",
@@ -28,6 +36,13 @@
   },
   "dependencies": {
     "path": "^0.12.7",
-    "socket.io": "^2.2.0"
+    "socket.io": "^2.2.0",
+    "chai": "^3.5.0",
+    "chai-http": "^2.0.1",
+    "ejs": "^2.4.1",
+    "mocha": "^2.4.5",
+    "mongodb": "^2.1.16",
+    "morgan": "^1.7.0",
+    "object-assign": "4.1.0"
   }
 }
