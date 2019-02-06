@@ -23,7 +23,6 @@ export default class DOM {
         this.$writeInfo = $('.writeInfo');
         this.$smileButton = $('.smileButton');
         this.$smilesWrapper = $('.smilesWrapper');
-        this.$smiles = $('.smiles');
         this.$smilesArray = $('.smiles a');
 
         this.bindEvents();
@@ -52,7 +51,7 @@ export default class DOM {
         this.sendWrite = CB;
     }
 
-    onSendSettigs(CB) {
+    onSendSettings(CB) {
         this.sendSettings = CB;
     }
 
@@ -65,9 +64,11 @@ export default class DOM {
      */
     addMessage(message) {
         let $message = $('<li></li>').attr('data-user-id', message.userID);
+
         $message.append($('<span class="userName"></span>').text(message.name));
         message.text = this.smileReplace(message.text);
         $message.append('<p>' + message.text + '</p>');
+
         if ($message.children('p').text().trim() == '') {
             $message.children('p').children('span').css({
                 'transform': 'scale(1.6)',
@@ -75,19 +76,23 @@ export default class DOM {
                 'margin-right': '5px'
             });
         }
+
         this.$msgsField.prepend($message);
     }
 
     smileReplace(text) {
         let smileInter = 0;
+
         while (smileInter !== -1) {
             smileInter = text.indexOf('#');
+
             if (smileInter !== -1) {
                 let smileEnd = text.indexOf('/', smileInter + 1);
                 let smileID = text.slice(smileInter + 1, smileEnd);
                 let posX = -(smileID % 5 * 25) + 'px';
                 let posY = -(parseInt(smileID / 5) * 25) + 2 + 'px';
                 let smileElement = `<span data-smile-id="${smileID}" style="background-position: ${posX} ${posY};"></span>`;
+
                 text = `${text.slice(0, smileInter)} ${smileElement} ${text.slice(smileEnd + 1)}`;
             }
         }

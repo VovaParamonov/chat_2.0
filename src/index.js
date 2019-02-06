@@ -33,7 +33,7 @@ dom.onSendWrite(() => {
     socket.emit('send write', {id: userID, name: userName});
 });
 
-dom.onSendSettigs((colorID) => {
+dom.onSendSettings((colorID) => {
     socket.emit('send settings', {color: colorID, name: userName});
 });
 
