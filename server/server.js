@@ -115,6 +115,6 @@ function userDisconnect(ID) {
     io.emit('get onlineList', onlineList);
 }
 
-http.listen(3000, function () {
+http.listen(8080, function () {
     console.log('listening on *:3000');
 });
