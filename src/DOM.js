@@ -35,10 +35,6 @@ export default class DOM {
         this.sendMessage = CB;
     }
 
-    onGetOnlineList(CB) {
-        this.getOnlineList = CB;
-    }
-
     onRegisterFormSend(CB) {
         this.registerFormSend = CB;
     }
@@ -206,7 +202,6 @@ export default class DOM {
 
         this.$onlineListButton.on('click', (e) => {
             e.preventDefault();
-            this.getOnlineList();
             this.toggleOnlineList();
         });
 
@@ -225,7 +220,8 @@ export default class DOM {
             let formPassword = $('.register__password').val();
             let formColor = $('.registerWindow .settings__colors input:checked').attr('data-colorID');
 
-            if (formName.trim() && formPassword.trim() && formColor.trim()) {
+
+            if (formName.trim() && formPassword.trim() && formColor) {
                 this.registerFormSend({name: formName, password: formPassword, color: formColor});
             } else {
                 alert('Недостаточно данных');

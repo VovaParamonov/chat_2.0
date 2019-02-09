@@ -16,11 +16,6 @@ dom.onMessageSend((text) => {
     socket.emit('send message', {text: text, name: userName, color: userColor});
 });
 
-dom.onGetOnlineList(() => {
-    console.log('Отправлен запрос на получение списка пользователей онлайн;');
-    socket.emit('get onlineList');
-});
-
 dom.onRegisterFormSend((registerData) => {
     socket.emit('userRegister', registerData);
 });
