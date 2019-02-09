@@ -18,6 +18,8 @@ io.on('connection', (socket) => {
     });
     socket.on('send message', (message) => {
         message.userID = socket.id;
+        message.color = getUserById(message.userID).color;
+        
         if (checkOnline(message.name)) {
             io.emit('get message', message);
         }
@@ -34,7 +36,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('userRegister', (userData) => {
-        if (!checkName(userData.name)) {
+        if (!getUserByName(userData.name)) {
             users.push(userData);
 
             userData.id = socket.id;
@@ -49,8 +51,8 @@ io.on('connection', (socket) => {
     });
 
     socket.on('userLogin', (userData) => {
-        if (checkName(userData.name)) {
-            let user = users.filter((item) => (item.name == userData.name))[0];
+        let user = getUserByName(userData.name);
+        if (user) {
 
             if (userData.password === user.password) {
                 if (!checkOnline(user.name)) {
@@ -98,9 +100,15 @@ function addOnlineUser(ID, Name, Color) {
     io.emit('get onlineList', onlineList);
 }
 
-function checkName(name) {
-    return users.some((elem) => {
+function getUserByName(name) {
+    return users.find((elem) => {
         return elem.name == name;
+    });
+}
+
+function getUserById(id) {
+    return onlineList.find((elem) => {
+        return elem.id == id;
     });
 }
 

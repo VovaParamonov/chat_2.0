@@ -13,7 +13,7 @@ let onlineList;
 let dom = new DOM();
 
 dom.onMessageSend((text) => {
-    socket.emit('send message', {text: text, name: userName, color: userColor});
+    socket.emit('send message', {text: text, name: userName});
 });
 
 dom.onRegisterFormSend((registerData) => {
