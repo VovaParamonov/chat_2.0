@@ -151,25 +151,26 @@ export default class DOM {
         })
     }
 
-    chatStyleReload(myID) {
+    chatStyleReload(myName) {
         this.$msgsField.children('li').each((index, item) => {
-            let itemID = $(item).attr('data-user-id');
+            let itemName = $(item).children('.userName').text();
 
-            if (itemID == myID) {
+            if (itemName == myName) {
                 $(item).css({'text-align': 'right'});
             }
 
-            $(item).children('span').css({'background-color': this.getColor(itemID)});
+            $(item).children('span').css({'background-color': this.getColor(itemName)});
         });
     }
 
-    getColor(id) {
+    getColor(name) {
         let color;
 
         this.$onlineList.children('li').each((index, item) => {
-            let itemID = $(item).attr('data-user-id');
+            let itemName = $(item).text();
             let itemColor = $(item).attr('data-user-color');
-            if (itemID == id) {
+
+            if (itemName == name) {
                 color = itemColor;
             }
         });

@@ -35,7 +35,7 @@ dom.onSendSettings((colorID) => {
 /*socket events*/
 socket.on('get message', (message) => {
     dom.addMessage(message);
-    dom.chatStyleReload(userID);
+    dom.chatStyleReload(userName);
 });
 
 socket.on('new user', () => {
@@ -49,8 +49,8 @@ socket.on('check online', () => {
 socket.on('get onlineList', (list) => {
     console.log('Список пользователей получен:');
     onlineList = list;
-    dom.onlineListReload(list);
-    dom.chatStyleReload(userID);
+    dom.onlineListReload(onlineList);
+    dom.chatStyleReload(userName);
 });
 
 socket.on('authorization', (userData) => {

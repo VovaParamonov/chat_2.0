@@ -5,7 +5,6 @@ const io = require('socket.io')(http);
 const path = require('path');
 
 let users = [];
-let onlineList = [];
 
 app.use(express.static(path.join(__dirname, '../public/dist')));
 
@@ -16,32 +15,33 @@ io.on('connection', (socket) => {
     socket.on('disconnect', () => {
         userDisconnect(socket.id);
     });
+
     socket.on('send message', (message) => {
         message.userID = socket.id;
         message.color = getUserById(message.userID).color;
         
-        if (checkOnline(message.name)) {
+        if (checkOnline(message.userID)) {
             io.emit('get message', message);
         }
     });
 
     socket.on('get onlineList', () => {
+        let onlineList = users.filter(elem => elem.id.length);
+        onlineList.forEach(elem => delete elem.password);
         socket.emit('get onlineList', onlineList);
     });
 
     socket.on('check online', (ID, Name, Color) => {
         if (ID && Name && Color) {
-            addOnlineUser(ID, Name, Color);
+            addOnlineUser({id: ID, name:Name, color:Color});
         }
     });
 
     socket.on('userRegister', (userData) => {
         if (!getUserByName(userData.name)) {
-            users.push(userData);
+            userData.id = [socket.id];
 
-            userData.id = socket.id;
-
-            addOnlineUser(userData.id, userData.name, userData.color);
+            addRegisterUser(userData);
 
             socket.emit('authorization', userData);
             socket.broadcast.emit('new user');
@@ -53,18 +53,12 @@ io.on('connection', (socket) => {
     socket.on('userLogin', (userData) => {
         let user = getUserByName(userData.name);
         if (user) {
-
             if (userData.password === user.password) {
-                if (!checkOnline(user.name)) {
-                    user.id = socket.id;
+                addOnlineUser({id:socket.id, name:userData.name});
 
-                    addOnlineUser(user.id, user.name, user.color);
+                socket.emit('authorization', user);
+                socket.broadcast.emit('new user');
 
-                    socket.emit('authorization', user);
-                    socket.broadcast.emit('new user');
-                } else {
-                    socket.emit('err', 'Данный пользователь сейчас онлайн');
-                }
             } else {
                 socket.emit('err', 'Неверный пароль');
             }
@@ -81,12 +75,12 @@ io.on('connection', (socket) => {
             }
 
         });
-        onlineList.forEach((item) => {
+        users.forEach((item) => {
             if (item.name == settings.name) {
                 item.color = settings.color;
             }
         });
-        io.emit('get onlineList', onlineList);
+        io.emit('get onlineList', users);
     });
 
     socket.on('send write', (user) => {
@@ -95,32 +89,46 @@ io.on('connection', (socket) => {
 });
 
 /*Other funcs*/
-function addOnlineUser(ID, Name, Color) {
-    onlineList.push({id: ID, name: Name, color: Color});
-    io.emit('get onlineList', onlineList);
+function addRegisterUser(user) {
+    users.push(user);
+
+    io.emit('get onlineList', users);
+}
+
+function addOnlineUser(user) {
+    users.forEach((elem) => {
+        if (elem.name == user.name) {
+            elem.id.push(user.id);
+        }
+    });
+
+    io.emit('get onlineList', users);
 }
 
 function getUserByName(name) {
-    return users.find((elem) => {
-        return elem.name == name;
-    });
+    return users.find(elem => elem.name === name);
 }
 
 function getUserById(id) {
-    return onlineList.find((elem) => {
-        return elem.id == id;
+    return users.find((elem) => {
+        return elem.id.some( ID => ID === id);
     });
 }
 
-function checkOnline(name) {
-    return onlineList.some((elem) => {
-        return elem.name == name;
+function checkOnline(id) {
+    return users.find((elem) => {
+        return elem.id.some((ID) => (ID == id));
     });
 }
 
 function userDisconnect(ID) {
-    onlineList = onlineList.filter((user) => (!(user.id === ID)));
-    io.emit('get onlineList', onlineList);
+    users.forEach((user) => {
+        if (user.id.find(id => ID)) {
+            user.id = user.id.filter((id) => (id !== ID));
+        }
+    });
+
+    io.emit('get onlineList', users);
 }
 
 http.listen(8080, function () {
