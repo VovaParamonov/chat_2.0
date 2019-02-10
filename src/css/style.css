@@ -154,7 +154,7 @@ a {
 }
 
 .messages_ul li:nth-child(odd) {
-    background-color: rgba(113, 113, 113, 0.5);
+    background-color: rgba(160, 160, 160, 0.5);
 }
 
 .selfMessage {
@@ -273,6 +273,11 @@ a {
 .popupWindow__form input[type='submit'] {
     padding: 10px;
     margin: 20px 0;
+}
+
+.settingsWindow input[type='submit'] {
+    margin-bottom: 0;
+    margin-top: 30px;
 }
 
 

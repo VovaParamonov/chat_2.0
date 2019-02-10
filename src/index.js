@@ -13,7 +13,7 @@ let onlineList;
 let dom = new DOM();
 
 dom.onMessageSend((text) => {
-    socket.emit('send message', {text: text, name: userName});
+    socket.emit('message', {text: text, name: userName});
 });
 
 dom.onRegisterFormSend((registerData) => {
@@ -25,15 +25,15 @@ dom.onLoginFormSend((userData) => {
 });
 
 dom.onSendWrite(() => {
-    socket.emit('send write', {id: userID, name: userName});
+    socket.emit('write', {id: userID, name: userName});
 });
 
 dom.onSendSettings((colorID) => {
-    socket.emit('send settings', {color: colorID, name: userName});
+    socket.emit('settings', {color: colorID, name: userName});
 });
 
 /*socket events*/
-socket.on('get message', (message) => {
+socket.on('message', (message) => {
     dom.addMessage(message);
     dom.chatStyleReload(userName);
 });
@@ -42,12 +42,7 @@ socket.on('new user', () => {
     console.log('Подключился новый пользователь');
 });
 
-socket.on('check online', () => {
-    socket.emit('check online', userID, userName, userColor);
-});
-
-socket.on('get onlineList', (list) => {
-    console.log('Список пользователей получен:');
+socket.on('onlineList', (list) => {
     onlineList = list;
     dom.onlineListReload(onlineList);
     dom.chatStyleReload(userName);
@@ -66,7 +61,7 @@ socket.on('authorization', (userData) => {
 /*----Как иначе?--->*/
 let writeTimer;
 /*<--------------*/
-socket.on('get write', (user) => {
+socket.on('write', (user) => {
     dom.userWrite(user);
     clearTimeout(writeTimer);
     writeTimer = setTimeout(() => {

@@ -10,33 +10,6 @@ app.use(express.static(path.join(__dirname, '../public/dist')));
 
 /*Server events*/
 io.on('connection', (socket) => {
-    console.log('Пользователь подключился: ' + socket.id);
-
-    socket.on('disconnect', () => {
-        userDisconnect(socket.id);
-    });
-
-    socket.on('send message', (message) => {
-        message.userID = socket.id;
-        message.color = getUserById(message.userID).color;
-        
-        if (checkOnline(message.userID)) {
-            io.emit('get message', message);
-        }
-    });
-
-    socket.on('get onlineList', () => {
-        let onlineList = users.filter(elem => elem.id.length);
-        onlineList.forEach(elem => delete elem.password);
-        socket.emit('get onlineList', onlineList);
-    });
-
-    socket.on('check online', (ID, Name, Color) => {
-        if (ID && Name && Color) {
-            addOnlineUser({id: ID, name:Name, color:Color});
-        }
-    });
-
     socket.on('userRegister', (userData) => {
         if (!getUserByName(userData.name)) {
             userData.id = [socket.id];
@@ -50,7 +23,7 @@ io.on('connection', (socket) => {
         }
     });
 
-    socket.on('userLogin', (userData) => {
+    socket.on('userLogin', userData => {
         let user = getUserByName(userData.name);
         if (user) {
             if (userData.password === user.password) {
@@ -58,7 +31,6 @@ io.on('connection', (socket) => {
 
                 socket.emit('authorization', user);
                 socket.broadcast.emit('new user');
-
             } else {
                 socket.emit('err', 'Неверный пароль');
             }
@@ -68,23 +40,26 @@ io.on('connection', (socket) => {
         }
     });
 
-    socket.on('send settings', (settings) => {
-        users.forEach((item) => {
-            if (item.name === settings.name) {
-                item.color = settings.color;
-            }
-
-        });
-        users.forEach((item) => {
-            if (item.name == settings.name) {
-                item.color = settings.color;
-            }
-        });
-        io.emit('get onlineList', users);
+    socket.on('disconnect', () => {
+        userDisconnect(socket.id);
     });
 
-    socket.on('send write', (user) => {
-        io.emit('get write', user);
+    socket.on('message', message => {
+        if (getUserById(socket.id)) {
+            message.userID = socket.id;
+            message.color = getUserById(socket.id).color;
+            io.emit('message', message);
+        }
+    });
+
+    socket.on('settings', (settings) => {
+        setNewColor(settings.name, settings.color);
+    });
+
+    socket.on('write', (user) => {
+        if (getUserById(socket.id)) {
+            socket.broadcast.emit('write', user);
+        }
     });
 });
 
@@ -92,7 +67,7 @@ io.on('connection', (socket) => {
 function addRegisterUser(user) {
     users.push(user);
 
-    io.emit('get onlineList', users);
+    onlineListReload();
 }
 
 function addOnlineUser(user) {
@@ -102,7 +77,7 @@ function addOnlineUser(user) {
         }
     });
 
-    io.emit('get onlineList', users);
+    onlineListReload();
 }
 
 function getUserByName(name) {
@@ -110,25 +85,40 @@ function getUserByName(name) {
 }
 
 function getUserById(id) {
-    return users.find((elem) => {
-        return elem.id.some( ID => ID === id);
-    });
-}
-
-function checkOnline(id) {
-    return users.find((elem) => {
-        return elem.id.some((ID) => (ID == id));
-    });
+    return users.find(elem => elem.id.indexOf(id) !== -1);
 }
 
 function userDisconnect(ID) {
-    users.forEach((user) => {
-        if (user.id.find(id => ID)) {
-            user.id = user.id.filter((id) => (id !== ID));
-        }
-    });
+    let user = users.find(elem => (elem.id.indexOf(ID) !== -1));
 
-    io.emit('get onlineList', users);
+    if (user) {
+        user.id = user.id.filter( id => id !== ID);
+    }
+
+    onlineListReload();
+}
+
+function onlineListReload() {
+    let onlineList = users
+        .filter(elem => elem.id.length)
+        .map(elem => ({
+            id: elem.id,
+            name: elem.name,
+            color: elem.color
+        }));
+
+    io.emit('onlineList', onlineList);
+}
+
+function setNewColor(name, color) {
+    let user = getUserByName(name);
+    let userIndex = users.indexOf(user);
+
+    user.color = color;
+
+    users[userIndex] = user;
+
+    onlineListReload();
 }
 
 http.listen(8080, function () {

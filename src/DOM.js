@@ -62,6 +62,9 @@ export default class DOM {
         let $message = $('<li></li>').attr('data-user-id', message.userID);
 
         $message.append($('<span class="userName"></span>').text(message.name));
+        if (message.name === this.$msgsField.children('li:first').children('.userName').text()) {
+            $message.children('.userName').hide();
+        }
         message.text = this.smileReplace(message.text);
         $message.append('<p>' + message.text + '</p>');
 
@@ -220,7 +223,6 @@ export default class DOM {
             let formName = $('.register__name').val();
             let formPassword = $('.register__password').val();
             let formColor = $('.registerWindow .settings__colors input:checked').attr('data-colorID');
-
 
             if (formName.trim() && formPassword.trim() && formColor) {
                 this.registerFormSend({name: formName, password: formPassword, color: formColor});
