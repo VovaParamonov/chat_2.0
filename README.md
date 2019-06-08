@@ -7,4 +7,4 @@ First project wiht socket io.
 * chating
 
 run from cmd
-### npm run start
+### `npm run start`
